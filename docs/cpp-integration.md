@@ -23,10 +23,9 @@ RAD Studio 11 / compiler version 35.0 provided these compilers on the developmen
 | `bcc32c` | Win32 modern Clang-enhanced C/C++ |
 | `bcc32` | Win32 classic C++Builder compiler |
 
-Verified commands:
+Verified commands (run from the repository root):
 
 ```powershell
-cd D:\Code\OpenTMate2Lib
 bcc64 -Iinclude -o examples\cpp\tmate2_decode_demo_bcc64.exe src\opentmate2.c examples\cpp\tmate2_decode_demo.cpp
 bcc32c -Iinclude -o examples\cpp\tmate2_decode_demo_bcc32c.exe src\opentmate2.c examples\cpp\tmate2_decode_demo.cpp
 ```

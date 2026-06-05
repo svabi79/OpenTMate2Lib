@@ -6,11 +6,8 @@ It is a pure protocol unit. It does not load `TMATE2_DLL.dll` and it does not op
 
 ## Add The Unit
 
-Add the binding path to the project search path:
-
-```text
-D:\Code\OpenTMate2Lib\bindings\delphi
-```
+Add the binding directory (`bindings\delphi`, relative to the repository root)
+to the project search path.
 
 Then use:
 
@@ -59,32 +56,47 @@ The Delphi binding uses a Boolean return contract for protocol helpers that vali
 - `False` means the input length was invalid.
 - No exception is raised for invalid report or vector lengths.
 
-## Build Output
+## Drive The Display
+
+The binding ports the full LCD display layer, so you build frames with named
+helpers instead of poking raw bytes. All display helpers take a `var TBytes`
+LCDVector and return `False` if it is shorter than `OPENTMATE2_LCD_VECTOR_SIZE`.
 
 ```pascal
 var
   LCDVector: TBytes;
   Report: TBytes;
 begin
-  SetLength(LCDVector, OPENTMATE2_LCD_VECTOR_SIZE);
-  LCDVector[33] := $20; // red
-  LCDVector[34] := $80; // green
-  LCDVector[35] := $20; // blue
-  LCDVector[36] := $28; // contrast
+  OpenTMate2LcdInit(LCDVector);                 // alloc 44 bytes + timing defaults
+  OpenTMate2SetBacklight(LCDVector, $20, $80, $20);
+  OpenTMate2SetContrast(LCDVector, $28);
+  OpenTMate2SetStatus(LCDVector, OPENTMATE2_LED_USB);
+
+  OpenTMate2WriteMainDisplay(LCDVector, 14200000);   // 9-digit frequency (Hz)
+  OpenTMate2WriteSmallDisplay(LCDVector, 59);        // 3-digit S-meter / power
+
+  OpenTMate2SetSegment(LCDVector, OPENTMATE2_SEG_USB, True);   // mode indicator
+  OpenTMate2SetSegment(LCDVector, OPENTMATE2_SEG_RX, True);
+  OpenTMate2SetSegment(LCDVector, OPENTMATE2_SMETER_BAR9, True);
 
   if OpenTMate2BuildOutputReport(LCDVector, Report) then
-    Writeln(Length(Report));
+    ; // write the resulting 64-byte Report through the USB transport
 end;
 ```
 
-Write the resulting 64-byte `Report` through the USB transport.
+`OpenTMate2WriteMainDisplay` / `OpenTMate2WriteSmallDisplay` touch only the
+seven segment bits of each digit, so indicator segments sharing those bytes
+(RIT, underlines, mode flags) survive a redraw. Call
+`OpenTMate2LcdClearDisplay` to blank the 32 segment bytes while keeping
+backlight, contrast, and timing. Segment IDs are the `OPENTMATE2_SEG_*` and
+`OPENTMATE2_SMETER_BAR*` constants (0..175).
 
 ## Console Example
 
 Build:
 
 ```powershell
-cd D:\Code\OpenTMate2Lib\examples\delphi
+cd examples\delphi
 dcc32 TMate2ConsoleDemo.dpr
 ```
 
