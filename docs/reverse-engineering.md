@@ -48,10 +48,14 @@ USBPcap devices did not show correctly until after a reboot following installati
 ## Remaining Work
 
 - Fully map input bytes `9..63`.
-- Add a tested Linux/macOS transport (e.g. `hidraw` or `hidapi`) to pair with
-  the protocol core.
 
-The Delphi display layer and a native, DLL-free **Windows** HID transport
-(`bindings/delphi/OpenTMate2HID.pas`, SetupAPI + `hid.dll`) are implemented and
-have been validated against real hardware.
+Transports implemented and validated against real hardware:
+
+- **Cross-platform (Linux / macOS / Windows)** — `src/opentmate2_hid.c`, an
+  optional hidapi-based C transport (`-DOPENTMATE2_WITH_HIDAPI=ON`).
+- **Windows, DLL-free Delphi** — `bindings/delphi/OpenTMate2HID.pas`
+  (SetupAPI + `hid.dll`), a native drop-in replacement for `TMATE2_DLL.dll`.
+
+The Delphi binding also carries the full LCD display layer (segment map +
+digit encoders), so it reaches parity with the C core.
 

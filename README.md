@@ -69,7 +69,25 @@ dcc32 TMate2ConsoleDemo.dpr
 ```powershell
 cmake -S . -B build
 cmake --build build
+ctest --test-dir build
 ```
+
+#### Optional cross-platform HID transport
+
+The protocol core is dependency-free. To also build the optional USB HID
+transport — one module covering Linux (hidraw/libusb), macOS (IOKit), and
+Windows via [hidapi](https://github.com/libusb/hidapi) — enable
+`OPENTMATE2_WITH_HIDAPI`:
+
+```sh
+cmake -S . -B build -DOPENTMATE2_WITH_HIDAPI=ON
+cmake --build build
+```
+
+hidapi is located via its CMake config, pkg-config (`hidapi-hidraw` /
+`hidapi`), or manual `-DHIDAPI_INCLUDE_DIR=... -DHIDAPI_LIBRARY=...`. This adds
+the `opentmate2_hid` library and the `tmate2_hid_demo` example. On Linux,
+install `udev/99-tmate2.rules` for non-root device access.
 
 This repository is designed to compile as C99/C++ friendly code. During creation it was verified with Embarcadero `bcc64`, `bcc32c`, and Delphi `dcc32`. CMake still needs a CMake-capable generator/toolchain installed.
 

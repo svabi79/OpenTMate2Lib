@@ -1,0 +1,12 @@
+# OpenTMate2Lib — allow non-root userspace HID access to the
+# ELAD / WoodBoxRadio TMate 2 (VID 0x1721 / PID 0x0614) on Linux.
+#
+# Install:
+#   sudo cp udev/99-tmate2.rules /etc/udev/rules.d/
+#   sudo udevadm control --reload-rules && sudo udevadm trigger
+#
+# Then re-plug the device. With this rule the logged-in user can open the
+# hidraw node via hidapi without sudo.
+
+KERNEL=="hidraw*", ATTRS{idVendor}=="1721", ATTRS{idProduct}=="0614", MODE="0660", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1721", ATTRS{idProduct}=="0614", MODE="0660", TAG+="uaccess"
