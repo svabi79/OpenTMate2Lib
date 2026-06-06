@@ -48,7 +48,10 @@ USBPcap devices did not show correctly until after a reboot following installati
 ## Remaining Work
 
 - Fully map input bytes `9..63`.
-- Port segment packing helpers from the Delphi display code.
-- Add a tested Linux transport using `hidraw` or `hidapi`.
-- Add Windows native HID transport if Delphi or C++ host applications need a DLL-free Windows path.
+- Add a tested Linux/macOS transport (e.g. `hidraw` or `hidapi`) to pair with
+  the protocol core.
+
+The Delphi display layer and a native, DLL-free **Windows** HID transport
+(`bindings/delphi/OpenTMate2HID.pas`, SetupAPI + `hid.dll`) are implemented and
+have been validated against real hardware.
 

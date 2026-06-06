@@ -2,7 +2,9 @@
 
 The Delphi binding is in `bindings/delphi/OpenTMate2.pas`.
 
-It is a pure protocol unit. It does not load `TMATE2_DLL.dll` and it does not open USB devices. This makes it safe to use from existing Delphi applications while a native USB transport is added separately.
+It is a pure protocol unit. It does not load `TMATE2_DLL.dll` and it does not open USB devices, so it is safe to use from existing Delphi applications.
+
+For Windows, a native USB HID transport that replaces `TMATE2_DLL.dll`'s open/read/write surface (SetupAPI + `hid.dll`, no third-party hidapi) is provided in `bindings/delphi/OpenTMate2HID.pas` — see the [HID Transport](#hid-transport-windows) section below. On other platforms, feed the protocol unit 64-byte reports from your own transport (`hidraw`, `hidapi`, …).
 
 ## Add The Unit
 
@@ -90,6 +92,48 @@ seven segment bits of each digit, so indicator segments sharing those bytes
 `OpenTMate2LcdClearDisplay` to blank the 32 segment bytes while keeping
 backlight, contrast, and timing. Segment IDs are the `OPENTMATE2_SEG_*` and
 `OPENTMATE2_SMETER_BAR*` constants (0..175).
+
+## HID Transport (Windows)
+
+`bindings/delphi/OpenTMate2HID.pas` is an optional, Windows-only USB HID
+transport built on SetupAPI + `hid.dll` — no third-party hidapi, no
+`TMATE2_DLL.dll`. It pairs the protocol unit above with the actual device:
+discovery by VID/PID, open/close, overlapped read with timeout, and write.
+
+```pascal
+uses
+  OpenTMate2, OpenTMate2HID;
+
+var
+  Dev: TOpenTMate2HID;
+  Inp: TOpenTMate2Input;
+  Lcd: TBytes;
+begin
+  Dev := TOpenTMate2HID.Create;
+  try
+    if not Dev.Open then
+      Exit;  // no TMate 2 connected
+
+    // Build and push a display frame.
+    OpenTMate2LcdInit(Lcd);
+    OpenTMate2SetBacklight(Lcd, 0, 50, 255);
+    OpenTMate2WriteMainDisplay(Lcd, 14200000);
+    OpenTMate2SetSegment(Lcd, OPENTMATE2_SEG_USB, True);
+    Dev.WriteLcd(Lcd);
+
+    // Poll input (returns False on timeout).
+    if Dev.ReadInput(Inp, 50) then
+      ; // Inp.Enc1..Enc3, Inp.Keys
+  finally
+    Dev.Free;  // closes the device
+  end;
+end;
+```
+
+The Windows HID stack frames reports with a leading report-ID byte; the unit
+prepends it on write and drops it on read, so callers work in the device's own
+report bytes. See `examples/delphi/TMate2HidSmoke.dpr` for a runnable end-to-end
+smoke test (it degrades gracefully when no device is present).
 
 ## Console Example
 
