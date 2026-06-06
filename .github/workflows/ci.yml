@@ -25,3 +25,21 @@ jobs:
 
       - name: Test
         run: ctest --test-dir build --build-config Release --output-on-failure
+
+      # Prove the optional hidapi transport compiles + links on the native
+      # backends (Linux hidraw, macOS IOKit). Windows is validated separately
+      # against real hardware, so it is skipped here to avoid vcpkg overhead.
+      - name: Install hidapi (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libhidapi-dev
+
+      - name: Install hidapi (macOS)
+        if: runner.os == 'macOS'
+        run: brew install hidapi
+
+      - name: Build with hidapi transport
+        if: runner.os != 'Windows'
+        run: |
+          cmake -B build-hid -DCMAKE_BUILD_TYPE=Release -DOPENTMATE2_WITH_HIDAPI=ON
+          cmake --build build-hid --config Release
+          ctest --test-dir build-hid --build-config Release --output-on-failure
