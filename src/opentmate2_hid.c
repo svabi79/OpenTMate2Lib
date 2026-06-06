@@ -1,6 +1,17 @@
 #include "opentmate2/opentmate2_hid.h"
 
-#include <hidapi/hidapi.h>
+/* hidapi's header lives at <hidapi/hidapi.h> on most installs (Linux
+ * libhidapi-dev, Windows), but Homebrew/macOS pkg-config points directly at
+ * the hidapi dir, exposing it as <hidapi.h>. Accept either. */
+#if defined(__has_include)
+#  if __has_include(<hidapi/hidapi.h>)
+#    include <hidapi/hidapi.h>
+#  else
+#    include <hidapi.h>
+#  endif
+#else
+#  include <hidapi/hidapi.h>
+#endif
 
 #include <stdlib.h>
 #include <string.h>
