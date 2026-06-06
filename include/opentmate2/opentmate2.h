@@ -19,7 +19,7 @@
  *
  * LCDVector layout (44 bytes):
  *   [0..31]  LCD segment / display bytes (scrambled bit layout — see map below)
- *   [32]     LED status   (active-high: bit0=USB-connected, bit1=lock)
+ *   [32]     Status byte  (active-high: bit0=USB, bit1=lock, bit2=click)
  *   [33]     Backlight R  (0..255)
  *   [34]     Backlight G  (0..255)
  *   [35]     Backlight B  (0..255)
@@ -80,10 +80,11 @@ extern "C" {
 #define OPENTMATE2_LCD_THR_23      42u
 #define OPENTMATE2_LCD_EVAL_TIME   43u
 
-/* ── LED status bits (byte 32) ─────────────────────────────────────────── */
+/* ── Status byte bits (byte 32) ────────────────────────────────────────── */
 
-#define OPENTMATE2_LED_USB  0x01u   /* USB / radio connected */
-#define OPENTMATE2_LED_LOCK 0x02u   /* VFO locked */
+#define OPENTMATE2_LED_USB      0x01u   /* USB / radio connected LED */
+#define OPENTMATE2_LED_LOCK     0x02u   /* VFO locked LED */
+#define OPENTMATE2_STATUS_CLICK 0x04u   /* Toggle this bit to request a click */
 
 /* ── Segment IDs (0..175) ──────────────────────────────────────────────── */
 /*
@@ -368,14 +369,14 @@ int opentmate2_build_output_report(
  *   threshold 2→3 = 25
  *   eval time     = 10
  *
- * Backlight and LED status are left at 0 — call opentmate2_set_backlight()
+ * Backlight and status byte are left at 0 — call opentmate2_set_backlight()
  * and opentmate2_set_status() to configure them.
  */
 void opentmate2_lcd_init(uint8_t *lcd_vector);
 
 /*
  * Zero only the 32 segment/display bytes (bytes 0..31), leaving bytes
- * 32..43 (LED, backlight, contrast, timing) unchanged.  Use this to blank
+ * 32..43 (status, backlight, contrast, timing) unchanged.  Use this to blank
  * the display before writing a fresh frame.
  */
 void opentmate2_lcd_clear_display(uint8_t *lcd_vector);
@@ -451,11 +452,25 @@ int opentmate2_write_small_display(uint8_t *lcd_vector, uint32_t value);
 /* ── Status and appearance ─────────────────────────────────────────────── */
 
 /*
- * Set the LED status byte (byte 32).
- *   led_byte : bitmask of OPENTMATE2_LED_* flags.
+ * Set the status byte (byte 32).
+ *   status_byte : bitmask of OPENTMATE2_LED_* and OPENTMATE2_STATUS_* flags.
  * Returns OPENTMATE2_OK or OPENTMATE2_ERROR_NULL.
  */
-int opentmate2_set_status(uint8_t *lcd_vector, uint8_t led_byte);
+int opentmate2_set_status(uint8_t *lcd_vector, uint8_t status_byte);
+
+/*
+ * Set or clear the click-control bit in the status byte.
+ * Hardware observation from microenh/Tmate2_C indicates that the device clicks
+ * when this bit changes value, so callers normally use opentmate2_toggle_click()
+ * and then send the LCDVector.
+ */
+int opentmate2_set_click(uint8_t *lcd_vector, int on);
+
+/*
+ * Toggle the click-control bit in the status byte.
+ * Returns OPENTMATE2_OK or OPENTMATE2_ERROR_NULL.
+ */
+int opentmate2_toggle_click(uint8_t *lcd_vector);
 
 /*
  * Set the RGB backlight (bytes 33..35).  Values are 0..255 per channel.

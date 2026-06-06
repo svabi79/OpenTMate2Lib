@@ -31,6 +31,8 @@ It provides:
 - `opentmate2_build_output_report` to build display reports.
 - `opentmate2_encoder_delta` to handle 16-bit wrap-around.
 - `opentmate2_key_is_pressed` for active-low keys.
+- `opentmate2_toggle_click` to request an audible hardware click by toggling
+  the click-control bit before sending the next LCDVector.
 
 ## Transport Requirements
 

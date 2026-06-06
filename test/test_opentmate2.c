@@ -186,6 +186,14 @@ static void test_status_backlight(void)
     memset(lcd, 0, sizeof lcd);
     CHECK(opentmate2_set_status(lcd, OPENTMATE2_LED_USB | OPENTMATE2_LED_LOCK) == OPENTMATE2_OK);
     CHECK(lcd[OPENTMATE2_LCD_LED_STATUS] == 0x03);
+    CHECK(opentmate2_set_click(lcd, 1) == OPENTMATE2_OK);
+    CHECK(lcd[OPENTMATE2_LCD_LED_STATUS] == 0x07);
+    CHECK(opentmate2_set_click(lcd, 0) == OPENTMATE2_OK);
+    CHECK(lcd[OPENTMATE2_LCD_LED_STATUS] == 0x03);
+    CHECK(opentmate2_toggle_click(lcd) == OPENTMATE2_OK);
+    CHECK(lcd[OPENTMATE2_LCD_LED_STATUS] == 0x07);
+    CHECK(opentmate2_toggle_click(lcd) == OPENTMATE2_OK);
+    CHECK(lcd[OPENTMATE2_LCD_LED_STATUS] == 0x03);
     CHECK(opentmate2_set_backlight(lcd, 10, 20, 30) == OPENTMATE2_OK);
     CHECK(lcd[OPENTMATE2_LCD_BACKLIGHT_R] == 10);
     CHECK(lcd[OPENTMATE2_LCD_BACKLIGHT_G] == 20);

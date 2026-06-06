@@ -477,10 +477,27 @@ int opentmate2_write_small_display(uint8_t *lcd_vector, uint32_t value)
 
 /* ── Status and appearance ─────────────────────────────────────────────── */
 
-int opentmate2_set_status(uint8_t *lcd_vector, uint8_t led_byte)
+int opentmate2_set_status(uint8_t *lcd_vector, uint8_t status_byte)
 {
     if (lcd_vector == NULL) return OPENTMATE2_ERROR_NULL;
-    lcd_vector[OPENTMATE2_LCD_LED_STATUS] = led_byte;
+    lcd_vector[OPENTMATE2_LCD_LED_STATUS] = status_byte;
+    return OPENTMATE2_OK;
+}
+
+int opentmate2_set_click(uint8_t *lcd_vector, int on)
+{
+    if (lcd_vector == NULL) return OPENTMATE2_ERROR_NULL;
+    if (on)
+        lcd_vector[OPENTMATE2_LCD_LED_STATUS] |= OPENTMATE2_STATUS_CLICK;
+    else
+        lcd_vector[OPENTMATE2_LCD_LED_STATUS] &= (uint8_t)~OPENTMATE2_STATUS_CLICK;
+    return OPENTMATE2_OK;
+}
+
+int opentmate2_toggle_click(uint8_t *lcd_vector)
+{
+    if (lcd_vector == NULL) return OPENTMATE2_ERROR_NULL;
+    lcd_vector[OPENTMATE2_LCD_LED_STATUS] ^= OPENTMATE2_STATUS_CLICK;
     return OPENTMATE2_OK;
 }
 

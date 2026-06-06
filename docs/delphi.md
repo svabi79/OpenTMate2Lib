@@ -73,6 +73,7 @@ begin
   OpenTMate2SetBacklight(LCDVector, $20, $80, $20);
   OpenTMate2SetContrast(LCDVector, $28);
   OpenTMate2SetStatus(LCDVector, OPENTMATE2_LED_USB);
+  OpenTMate2ToggleClick(LCDVector);             // request click on next write
 
   OpenTMate2WriteMainDisplay(LCDVector, 14200000);   // 9-digit frequency (Hz)
   OpenTMate2WriteSmallDisplay(LCDVector, 59);        // 3-digit S-meter / power
@@ -117,6 +118,7 @@ begin
     // Build and push a display frame.
     OpenTMate2LcdInit(Lcd);
     OpenTMate2SetBacklight(Lcd, 0, 50, 255);
+    OpenTMate2ToggleClick(Lcd);
     OpenTMate2WriteMainDisplay(Lcd, 14200000);
     OpenTMate2SetSegment(Lcd, OPENTMATE2_SEG_USB, True);
     Dev.WriteLcd(Lcd);

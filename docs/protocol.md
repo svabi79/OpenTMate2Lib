@@ -119,7 +119,7 @@ Known `LCDVector` layout:
 | Offset | Size | Meaning |
 | --- | --- | --- |
 | `0..31` | 32 | LCD segment and display bytes |
-| `32` | 1 | LED status |
+| `32` | 1 | Status byte: USB LED, lock LED, click control |
 | `33` | 1 | Backlight red |
 | `34` | 1 | Backlight green |
 | `35` | 1 | Backlight blue |
@@ -132,6 +132,19 @@ Known `LCDVector` layout:
 | `42` | 1 | Speed threshold 2 to 3 |
 | `43` | 1 | Speed evaluation time |
 | `44..63` | 20 | Zero padding in USB report |
+
+Known status byte bits:
+
+| Bit | Mask | Meaning |
+| --- | --- | --- |
+| `0` | `0x01` | USB / radio connected LED |
+| `1` | `0x02` | VFO locked LED |
+| `2` | `0x04` | Click control; hardware appears to click when this bit changes value |
+
+The click bit was cross-checked against the independent `microenh/Tmate2_C`
+implementation, where it is modeled as a bit in the same byte as the two LED
+flags. OpenTMate2Lib exposes this as `opentmate2_set_click()` and
+`opentmate2_toggle_click()`.
 
 Example 44-byte vector captured from a `number_0` display update:
 

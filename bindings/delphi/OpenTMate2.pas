@@ -55,9 +55,10 @@ const
   OPENTMATE2_LCD_THR_23 = 42;
   OPENTMATE2_LCD_EVAL_TIME = 43;
 
-  { LED status bits (byte 32) }
-  OPENTMATE2_LED_USB = $01;   { USB / radio connected }
-  OPENTMATE2_LED_LOCK = $02;  { VFO locked }
+  { Status byte bits (byte 32) }
+  OPENTMATE2_LED_USB = $01;       { USB / radio connected LED }
+  OPENTMATE2_LED_LOCK = $02;      { VFO locked LED }
+  OPENTMATE2_STATUS_CLICK = $04;  { toggle this bit to request a click }
 
   { Indicator segment IDs (0..76) — argument to OpenTMate2SetSegment }
   OPENTMATE2_SEG_SMETER_LINE = 0;
@@ -277,6 +278,8 @@ function OpenTMate2WriteSmallDisplay(var LCDVector: TBytes; Value: Cardinal): Bo
 
 { ── Status + appearance ───────────────────────────────────────────────── }
 function OpenTMate2SetStatus(var LCDVector: TBytes; LedByte: Byte): Boolean;
+function OpenTMate2SetClick(var LCDVector: TBytes; Enabled: Boolean): Boolean;
+function OpenTMate2ToggleClick(var LCDVector: TBytes): Boolean;
 function OpenTMate2SetBacklight(var LCDVector: TBytes; R, G, B: Byte): Boolean;
 function OpenTMate2SetContrast(var LCDVector: TBytes; Contrast: Byte): Boolean;
 
@@ -669,6 +672,27 @@ begin
   if not Result then
     Exit;
   LCDVector[OPENTMATE2_LCD_LED_STATUS] := LedByte;
+end;
+
+function OpenTMate2SetClick(var LCDVector: TBytes; Enabled: Boolean): Boolean;
+begin
+  Result := HasLcdVector(LCDVector);
+  if not Result then
+    Exit;
+
+  if Enabled then
+    LCDVector[OPENTMATE2_LCD_LED_STATUS] := LCDVector[OPENTMATE2_LCD_LED_STATUS] or OPENTMATE2_STATUS_CLICK
+  else
+    LCDVector[OPENTMATE2_LCD_LED_STATUS] := LCDVector[OPENTMATE2_LCD_LED_STATUS] and not OPENTMATE2_STATUS_CLICK;
+end;
+
+function OpenTMate2ToggleClick(var LCDVector: TBytes): Boolean;
+begin
+  Result := HasLcdVector(LCDVector);
+  if not Result then
+    Exit;
+
+  LCDVector[OPENTMATE2_LCD_LED_STATUS] := LCDVector[OPENTMATE2_LCD_LED_STATUS] xor OPENTMATE2_STATUS_CLICK;
 end;
 
 function OpenTMate2SetBacklight(var LCDVector: TBytes; R, G, B: Byte): Boolean;

@@ -80,6 +80,14 @@ begin
   OpenTMate2LcdInit(Lcd);
   OpenTMate2SetStatus(Lcd, OPENTMATE2_LED_USB or OPENTMATE2_LED_LOCK);
   Check(Lcd[OPENTMATE2_LCD_LED_STATUS] = $03, 'status byte');
+  Check(OpenTMate2SetClick(Lcd, True), 'set click');
+  Check(Lcd[OPENTMATE2_LCD_LED_STATUS] = $07, 'click bit set');
+  Check(OpenTMate2SetClick(Lcd, False), 'clear click');
+  Check(Lcd[OPENTMATE2_LCD_LED_STATUS] = $03, 'click bit cleared');
+  Check(OpenTMate2ToggleClick(Lcd), 'toggle click on');
+  Check(Lcd[OPENTMATE2_LCD_LED_STATUS] = $07, 'click bit toggled on');
+  Check(OpenTMate2ToggleClick(Lcd), 'toggle click off');
+  Check(Lcd[OPENTMATE2_LCD_LED_STATUS] = $03, 'click bit toggled off');
   OpenTMate2SetBacklight(Lcd, 10, 20, 30);
   Check((Lcd[33] = 10) and (Lcd[34] = 20) and (Lcd[35] = 30), 'backlight rgb');
   OpenTMate2SetContrast(Lcd, $28);
